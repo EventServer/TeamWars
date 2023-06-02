@@ -1,0 +1,12 @@
+name: TeamWars
+version: '${version}'
+main: eventserver.teamwars.TeamWars
+author: Zako
+api-version: 1.16
+depend:
+  - WorldGuard
+  - WorldEdit
+commands:
+  spawn:
+  teamwars:
+    aliases: ["tw"]

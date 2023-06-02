@@ -1,0 +1,74 @@
+world: world
+
+teams-max-slots: 50
+
+spawn-location:
+  x: 0
+  y: 100
+  z: 0
+
+messages:
+  teleport-ok: "Телепортирую..."
+  no-permission: "§cНедостаточно прав"
+  no-team: "Команда не найдена"
+  you-team-member: "Вы уже состоите в команде"
+  team-full: "Команда переполнена"
+  player-no-member: "Игрок не является участником команды"
+  member-kick: "Участник %player% был исключён из команды."
+  no-spawn-teleport: "Вы не можете телепортироваться на спавн во время активной игры"
+  no-join-no-prepare: "В настоящий момент не ведётся набор участников."
+  player-team-join: "Игрок %player% присоединился к команде."
+
+flags:
+  - flag: ENTRY
+    state: DENY
+  - flag: PVP
+    state: DENY
+  - flag: FALL-DAMAGE
+    state: ALLOW
+
+teams:
+  green:
+    prefix: "§x§0§b§a§f§1§c■ §f"
+    item-element:
+      slot: 10
+      material: GREEN_SHULKER_BOX
+      display: "§x§0§b§a§f§1§cЗелёная команда"
+    region:
+      min:
+        x: 0
+        y: 0
+        z: 0
+      max:
+        x: 200
+        y: 256
+        z: 200
+    spawn-point:
+      x: 10
+      y: 100
+      z: 10
+    members:
+      zako:
+        balance: 0
+  red:
+    prefix: "§x§a§f§0§1§3§5■ §f"
+    item-element:
+      slot: 15
+      material: RED_SHULKER_BOX
+      display: "§x§a§f§0§1§3§5Красная команда"
+    region:
+      min:
+        x: 0
+        y: 0
+        z: 0
+      max:
+        x: 200
+        y: 256
+        z: 200
+    spawn-point:
+      x: 10
+      y: 100
+      z: 10
+    members:
+      _Smoup:
+        balance: 0

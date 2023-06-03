@@ -49,7 +49,7 @@ public class Config {
 
         ConfigurationSection spawnLocation = file.getConfigurationSection("spawn-location");
         if (spawnLocation != null)
-            SPAWN = parseLocation(spawnLocation);
+            SPAWN = parseLocation(world, spawnLocation);
 
     }
 
@@ -64,10 +64,18 @@ public class Config {
         MESSAGES.PLAYER_NO_MEMBER = section.getString("player-no-member");
         MESSAGES.MEMBER_KICK = section.getString("member-kick");
         MESSAGES.NO_SPAWN_TELEPORT = section.getString("no-spawn-teleport");
+        MESSAGES.YOU_NO_TEAM = section.getString("you-no-team");
+        MESSAGES.NO_BALANCE = section.getString("no-balance");
+        MESSAGES.YOU_PAY = section.getString("you-pay");
+        MESSAGES.WHERE_PAY = section.getString("where-pay");
     }
 
     public static class MESSAGES {
         public static String NO_PERMISSION;
+        public static String YOU_PAY;
+        public static String WHERE_PAY;
+        public static String NO_BALANCE;
+        public static String YOU_NO_TEAM;
         public static String MEMBER_KICK;
         public static String NO_JOIN_NO_PREPARE;
         public static String YOU_TEAM_MEMBER;
@@ -146,8 +154,8 @@ public class Config {
         final ProtectedCuboidRegion region = parseTeamRegion(id, regionSection);
         final ProtectedCuboidRegion netherRegion = parseTeamRegion(id, netherRegionSection);
         final TeamGuiElement guiElement = parseGuiElement(guiSection);
-        final Location spawn = parseLocation(spawnLocation);
-        final Location netherSpawn = parseLocation(netherSpawnLocation);
+        final Location spawn = parseLocation(world, spawnLocation);
+        final Location netherSpawn = parseLocation(worldNether, netherSpawnLocation);
 
         flags.forEach((f, s) -> region.getFlags().put(f, s));
 
@@ -176,7 +184,7 @@ public class Config {
         return result;
     }
 
-    public static Location parseLocation(ConfigurationSection section) {
+    public static Location parseLocation(World world, ConfigurationSection section) {
         final double x = section.getDouble("x");
         final double y = section.getDouble("y");
         final double z = section.getDouble("z");

@@ -15,8 +15,12 @@ messages:
   you-team-member: "Вы уже состоите в команде"
   team-full: "Команда переполнена"
   player-no-member: "Игрок не является участником команды"
+  no-balance: "У Вас недостаточно денег"
+  you-no-team: "Вы не состоите в команде"
   member-kick: "Участник %player% был исключён из команды."
   no-spawn-teleport: "Вы не можете телепортироваться на спавн во время активной игры"
+  you-pay: "Вы передали %money%$ тиммейту %target%. Ваш новый баланс: %balance%$"
+  where-pay: "Тиммейт %player% передал Вам %money%$. Ваш новый баланс: %balance%$"
   no-join-no-prepare: "В настоящий момент не ведётся набор участников."
   player-team-join: "Игрок %player% присоединился к команде."
 
@@ -44,15 +48,15 @@ teams:
         x: 200
         y: 256
         z: 200
-      nether-region:
-        min:
-          x: 0
-          y: 0
-          z: 0
-        max:
-          x: 200
-          y: 256
-          z: 200
+    nether-region:
+      min:
+        x: 0
+        y: 0
+        z: 0
+      max:
+        x: 200
+        y: 256
+        z: 200
     spawn-point:
       x: 10
       y: 100

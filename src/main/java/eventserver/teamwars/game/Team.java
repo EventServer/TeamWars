@@ -36,6 +36,14 @@ public class Team {
                 region.getMembers().addPlayer(member.getPlayerName()));
     }
 
+    public double getFullBalance() {
+        double balance = 0;
+        for (TeamMember member: members) {
+            balance += member.getBalance();
+        }
+        return balance;
+    }
+
     public void teleport(Location location) {
         members.forEach(member -> {
             Player player = member.getBukkitInstance();

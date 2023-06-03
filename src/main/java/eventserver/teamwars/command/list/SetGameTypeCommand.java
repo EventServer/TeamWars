@@ -10,6 +10,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SetGameTypeCommand implements SubCommand {
@@ -40,6 +41,10 @@ public class SetGameTypeCommand implements SubCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return null;
+        final List<String> result = new ArrayList<>();
+        for (Game.State state: Game.State.values()) {
+            result.add(state.name());
+        }
+        return result;
     }
 }

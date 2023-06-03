@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 @AllArgsConstructor @Getter
 public class TeamMember {
     private final String playerName;
+    @Setter
     private double balance;
 
     @Getter @Setter

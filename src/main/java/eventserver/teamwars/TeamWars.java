@@ -3,6 +3,7 @@ package eventserver.teamwars;
 import eventserver.teamwars.command.SpawnCommand;
 import eventserver.teamwars.command.TeamWarsCommand;
 import eventserver.teamwars.game.Game;
+import eventserver.teamwars.placeholder.Placeholder;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,6 +14,7 @@ public final class TeamWars extends JavaPlugin {
     private Game game;
     @Getter
     private static TeamWars instance;
+    private Placeholder placeholder;
     @Override
     public void onEnable() {
         this.instance = this;
@@ -20,12 +22,15 @@ public final class TeamWars extends JavaPlugin {
         new Config(getConfig());
 
         this.game = new Game(this);
+        placeholder = new Placeholder(game);
+        placeholder.register();
         Objects.requireNonNull(getServer().getPluginCommand("teamwars")).setExecutor(new TeamWarsCommand());
         Objects.requireNonNull(getServer().getPluginCommand("spawn")).setExecutor(new SpawnCommand());
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (placeholder != null)
+            placeholder.unregister();
     }
 }

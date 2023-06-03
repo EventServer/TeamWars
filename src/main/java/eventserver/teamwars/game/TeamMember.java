@@ -1,5 +1,7 @@
 package eventserver.teamwars.game;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +16,10 @@ public class TeamMember {
     @Getter @Setter
     private Player bukkitInstance = null;
 
-
+    public JsonObject getJson() {
+        JsonObject jo = new JsonObject();
+        jo.add("username", new JsonPrimitive(playerName));
+        jo.add("balance", new JsonPrimitive(balance));
+        return jo;
+    }
 }

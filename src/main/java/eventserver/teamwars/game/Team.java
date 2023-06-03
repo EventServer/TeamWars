@@ -1,5 +1,8 @@
 package eventserver.teamwars.game;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import eventserver.teamwars.gui.TeamGuiElement;
 import lombok.Getter;
@@ -50,6 +53,17 @@ public class Team {
             if (player != null)
                 player.teleport(location);
         });
+    }
+
+    public JsonObject getJson() {
+        JsonObject jo = new JsonObject();
+        jo.add("id", new JsonPrimitive(id));
+        JsonArray members = new JsonArray();
+        for (TeamMember member: this.members) {
+            members.add(member.getJson());
+        }
+        jo.add("members", members);
+        return jo;
     }
 
     public boolean isMember(String playerName) {

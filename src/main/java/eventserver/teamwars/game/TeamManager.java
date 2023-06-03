@@ -55,6 +55,12 @@ public class TeamManager {
         return null;
     }
 
+    public void reset() {
+        this.teams.forEach(team -> {
+            team.getMembers().clear();
+        });
+    }
+
     public void updateRegions() {
         RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regionManager = regionContainer.get(BukkitAdapter.adapt(Config.world));
@@ -131,6 +137,9 @@ public class TeamManager {
             if (event.getTo().getWorld().getName().equalsIgnoreCase(Config.worldNether.getName())) {
                 event.setCancelled(true);
                 player.teleport(team.getNetherSpawn());
+            } else if (event.getTo().getWorld().getName().equalsIgnoreCase(Config.world.getName())) {
+                event.setCancelled(true);
+                player.teleport(team.getSpawn());
             }
         }
 

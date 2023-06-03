@@ -18,7 +18,7 @@ public class SpawnCommand implements CommandExecutor {
         final Game game = TeamWars.getInstance().getGame();
         final Team team = game.getTeamManager().getPlayerTeam(player);
         if (team != null && game.getState() == Game.State.ACTIVE) {
-            sender.sendMessage(Config.MESSAGES.NO_SPAWN_TELEPORT);
+            player.teleport(team.getSpawn());
             return true;
         }
 

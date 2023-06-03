@@ -33,6 +33,7 @@ public class Config {
 
         parseMessages(messagesSection);
         world = Bukkit.getWorld(file.getString("world", "world"));
+        worldNether = Bukkit.getWorld(file.getString("nether-world", "world_nether"));
 
         List<?> objects = file.getList("flags");
         final FlagRegistry flagRegistry = WorldGuard.getInstance().getFlagRegistry();
@@ -97,6 +98,7 @@ public class Config {
     public static Location SPAWN;
     public static int TEAMS_MAX_SLOTS;
     private static final Map<Flag, StateFlag.State> flags = new HashMap<>();
+    public static World worldNether;
     public static World world;
 
     public static Set<Team> parseTeams(ConfigurationSection section) {
@@ -120,15 +122,32 @@ public class Config {
             TeamWars.getInstance().getLogger().warning("Team "+id+" region section not defined");
             return null;
         }
+        final ConfigurationSection netherRegionSection = section.getConfigurationSection("nether-region");
+        if (netherRegionSection == null) {
+            TeamWars.getInstance().getLogger().warning("Team "+id+" nether region section not defined");
+            return null;
+        }
         final ConfigurationSection guiSection = section.getConfigurationSection("item-element");
         if (guiSection == null) {
             TeamWars.getInstance().getLogger().warning("Team "+id+" gui section not defined");
             return null;
         }
+        final ConfigurationSection spawnLocation = section.getConfigurationSection("spawn-point");
+        if (spawnLocation == null) {
+            TeamWars.getInstance().getLogger().warning("Team "+id+" spawn section not defined");
+            return null;
+        }
+        final ConfigurationSection netherSpawnLocation = section.getConfigurationSection("nether-spawn-point");
+        if (netherSpawnLocation == null) {
+            TeamWars.getInstance().getLogger().warning("Team "+id+" nether spawn section not defined");
+            return null;
+        }
         final String prefix = section.getString("prefix", "");
         final ProtectedCuboidRegion region = parseTeamRegion(id, regionSection);
+        final ProtectedCuboidRegion netherRegion = parseTeamRegion(id, netherRegionSection);
         final TeamGuiElement guiElement = parseGuiElement(guiSection);
-        final Location spawn = parseLocation(section);
+        final Location spawn = parseLocation(spawnLocation);
+        final Location netherSpawn = parseLocation(netherSpawnLocation);
 
         flags.forEach((f, s) -> region.getFlags().put(f, s));
 
@@ -140,7 +159,7 @@ public class Config {
         else
             members = parseMembersTeam(membersSection);
 
-        return new Team(id, guiElement, region, spawn, members, prefix);
+        return new Team(id, guiElement, region, netherRegion, spawn, netherSpawn, members, prefix);
     }
 
     public static Set<TeamMember> parseMembersTeam(ConfigurationSection section) {

@@ -34,4 +34,5 @@ public class Game {
         PREPARATION,
         ACTIVE;
     }
+
 }

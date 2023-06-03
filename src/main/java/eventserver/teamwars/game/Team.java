@@ -17,14 +17,18 @@ public class Team {
     private final String id;
     private final TeamGuiElement guiElement;
     private final ProtectedCuboidRegion region;
+    private final ProtectedCuboidRegion netherRegion;
     private final Location spawn;
+    private final Location netherSpawn;
     private final String prefix;
 
-    public Team(String id, TeamGuiElement guiElement, ProtectedCuboidRegion region, Location spawn, Set<TeamMember> members, String prefix) {
+    public Team(String id, TeamGuiElement guiElement, ProtectedCuboidRegion region, ProtectedCuboidRegion netherRegion, Location spawn, Location netherSpawn, Set<TeamMember> members, String prefix) {
         this.id = id;
         this.guiElement = guiElement;
         this.region = region;
+        this.netherRegion = netherRegion;
         this.spawn = spawn;
+        this.netherSpawn = netherSpawn;
         this.members = members;
         this.prefix = prefix;
 
@@ -67,6 +71,7 @@ public class Team {
     public void addMember(TeamMember member) {
         this.members.add(member);
         region.getMembers().addPlayer(member.getPlayerName());
+        netherRegion.getMembers().addPlayer(member.getPlayerName());
     }
 
     public TeamMember addMember(@NotNull Player player) {
@@ -80,6 +85,7 @@ public class Team {
     public void kickMember(TeamMember member) {
         members.remove(member);
         region.getMembers().removePlayer(member.getPlayerName());
+        netherRegion.getMembers().removePlayer(member.getPlayerName());
     }
 
     /**
@@ -88,6 +94,6 @@ public class Team {
      * @return Team
      */
     public Team clone() {
-        return new Team(id, guiElement, region, spawn, Collections.emptySet(), prefix);
+        return new Team(id, guiElement, region, netherRegion, spawn, netherSpawn, Collections.emptySet(), prefix);
     }
 }

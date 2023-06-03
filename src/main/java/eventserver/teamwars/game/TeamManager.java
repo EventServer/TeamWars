@@ -3,10 +3,11 @@ package eventserver.teamwars.game;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import eventserver.teamwars.Config;
 import lombok.Getter;
-import org.bukkit.ChatColor;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,6 +42,8 @@ public class TeamManager {
         updateRegions();
 
         plugin.getServer().getPluginManager().registerEvents(new BukkitListener(), plugin);
+
+        runPositionControlScheduler();
     }
 
     public @Nullable Team getPlayerTeam(Player player) {
@@ -54,13 +58,17 @@ public class TeamManager {
     public void updateRegions() {
         RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regionManager = regionContainer.get(BukkitAdapter.adapt(Config.world));
+        RegionManager netherRegionManager = regionContainer.get(BukkitAdapter.adapt(Config.worldNether));
 
-        if (regionManager == null)
+        if (regionManager == null || netherRegionManager == null)
             return;
 
         for (final Team team: teams) {
             regionManager.removeRegion(team.getRegion().getId());
             regionManager.addRegion(team.getRegion());
+
+            netherRegionManager.removeRegion(team.getNetherRegion().getId());
+            netherRegionManager.addRegion(team.getNetherRegion());
         }
     }
 
@@ -70,6 +78,30 @@ public class TeamManager {
                 return team;
         }
         return null;
+    }
+
+    public void runPositionControlScheduler() {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Team team: teams) {
+                for (TeamMember member: team.getMembers()) {
+                    if (member.getBukkitInstance() == null
+                            || isPlayerInsideRegion(Config.world, team.getRegion(), member.getBukkitInstance().getLocation())
+                            || isPlayerInsideRegion(Config.worldNether, team.getNetherRegion(), member.getBukkitInstance().getLocation()))
+                        continue;
+
+                    member.getBukkitInstance().teleport(team.getSpawn());
+                    member.getBukkitInstance()
+                            .playSound(member.getBukkitInstance().getLocation(),
+                                    Sound.ENTITY_SHULKER_TELEPORT, 1.5F, 1.5F);
+                }
+            }
+        }, 40, 40);
+    }
+
+    private boolean isPlayerInsideRegion(World world, ProtectedCuboidRegion region, Location playerLocation) {
+        if (!world.getName().equalsIgnoreCase(playerLocation.getWorld().getName()))
+            return false;
+        return region.contains(playerLocation.getBlockX(), playerLocation.getBlockY(), playerLocation.getBlockZ());
     }
 
     private class BukkitListener implements Listener {
@@ -88,6 +120,17 @@ public class TeamManager {
                 final TeamMember member = team.getMember(player.getName());
                 if (member == null) continue;
                 member.setBukkitInstance(null);
+            }
+        }
+
+        @EventHandler
+        private void onPlayerPortalEvent(PlayerPortalEvent event) {
+            final Player player = event.getPlayer();
+            final Team team = getPlayerTeam(player);
+            if (team == null) return;
+            if (event.getTo().getWorld().getName().equalsIgnoreCase(Config.worldNether.getName())) {
+                event.setCancelled(true);
+                player.teleport(team.getNetherSpawn());
             }
         }
 

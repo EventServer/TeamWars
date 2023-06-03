@@ -1,4 +1,5 @@
 world: world
+nether-world: world_nether
 
 teams-max-slots: 50
 
@@ -43,7 +44,20 @@ teams:
         x: 200
         y: 256
         z: 200
+      nether-region:
+        min:
+          x: 0
+          y: 0
+          z: 0
+        max:
+          x: 200
+          y: 256
+          z: 200
     spawn-point:
+      x: 10
+      y: 100
+      z: 10
+    nether-spawn-point:
       x: 10
       y: 100
       z: 10
@@ -65,7 +79,20 @@ teams:
         x: 200
         y: 256
         z: 200
+    nether-region:
+      min:
+        x: 0
+        y: 0
+        z: 0
+      max:
+        x: 200
+        y: 256
+        z: 200
     spawn-point:
+      x: 10
+      y: 100
+      z: 10
+    nether-spawn-point:
       x: 10
       y: 100
       z: 10

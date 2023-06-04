@@ -3,8 +3,13 @@ package eventserver.teamwars.game;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import eventserver.teamwars.Config;
+import eventserver.teamwars.event.SetGameStateEvent;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -13,6 +18,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Game {
     @Getter
@@ -20,10 +27,12 @@ public class Game {
     @Getter
     private State state = State.INACTIVE;
     private final JavaPlugin plugin;
+    private final Timer startBattleTimer = new Timer();
+    private long startBattleDate = 0;
 
     public Game(JavaPlugin plugin) {
         this.plugin = plugin;
-        teamManager = new TeamManager(plugin, plugin.getConfig());
+        teamManager = new TeamManager(plugin, plugin.getConfig(), this);
     }
 
     public JsonObject getJson() {
@@ -38,8 +47,12 @@ public class Game {
     }
 
     public void setState(State state) {
+        startBattleTimer.cancel();
+        new SetGameStateEvent(this, state).callEvent();
         switch (state) {
             case ACTIVE -> {
+                startBattleDate = System.currentTimeMillis() + Config.ACTIVE_TIME * 1000L;
+                planeStartBattle();
                 teamManager.getTeams().forEach(team -> {
                     team.teleport(team.getSpawn());
                 });
@@ -49,9 +62,37 @@ public class Game {
                 });
                 saveGameStatistic();
                 teamManager.reset();
+            } case PREPARATION -> {
+
+            } case BATTLE -> {
+                final Title title = Title.title(Component.text(Config.MESSAGES.BATTLE_START_TITLE), Component.text(""));
+                for (Team team: teamManager.getTeams()) {
+                    team.sendTitle(title);
+                }
+                for (Team team: teamManager.getTeams()) {
+                    team.getRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
+                    team.getRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
+                    team.getRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
+                    team.getRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
+                }
             }
         }
         this.state = state;
+    }
+
+    public void planeStartBattle() {
+        startBattleTimer.cancel();
+        startBattleTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                setState(State.BATTLE);
+                startBattleTimer.cancel();
+            }
+        },new Date(startBattleDate), Long.MAX_VALUE);
     }
 
    public void saveGameStatistic() {
@@ -73,6 +114,7 @@ public class Game {
     public enum State {
         INACTIVE,
         PREPARATION,
+        BATTLE,
         ACTIVE;
     }
 

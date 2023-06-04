@@ -46,6 +46,7 @@ public class Config {
         }
 
         TEAMS_MAX_SLOTS = file.getInt("teams-max-slots", 50);
+        ACTIVE_TIME = file.getInt("active-time", 3600);
 
         ConfigurationSection spawnLocation = file.getConfigurationSection("spawn-location");
         if (spawnLocation != null)
@@ -68,6 +69,8 @@ public class Config {
         MESSAGES.NO_BALANCE = section.getString("no-balance");
         MESSAGES.YOU_PAY = section.getString("you-pay");
         MESSAGES.WHERE_PAY = section.getString("where-pay");
+        MESSAGES.TIME_FORMAT = section.getString("time-format");
+        MESSAGES.BATTLE_START_TITLE = section.getString("battle-start-title");
     }
 
     public static class MESSAGES {
@@ -76,6 +79,7 @@ public class Config {
         public static String WHERE_PAY;
         public static String NO_BALANCE;
         public static String YOU_NO_TEAM;
+        public static String TIME_FORMAT;
         public static String MEMBER_KICK;
         public static String NO_JOIN_NO_PREPARE;
         public static String YOU_TEAM_MEMBER;
@@ -85,6 +89,7 @@ public class Config {
         public static String TELEPORT_OK;
         public static String NO_SPAWN_TELEPORT;
         public static String TEAM_FULL;
+        public static String BATTLE_START_TITLE;
     }
 
     public static void setSlots(int slots) {
@@ -124,6 +129,7 @@ public class Config {
         return result;
     }
 
+    public static int ACTIVE_TIME;
     public static @Nullable Team parseTeam(final String id, ConfigurationSection section) {
         final ConfigurationSection regionSection = section.getConfigurationSection("region");
         if (regionSection == null) {

@@ -8,6 +8,9 @@ spawn-location:
   y: 100
   z: 0
 
+active-time: 120
+time-format: "%h%ч. %m%м. %s%с."
+
 messages:
   teleport-ok: "Телепортирую..."
   no-permission: "§cНедостаточно прав"
@@ -23,6 +26,7 @@ messages:
   where-pay: "Тиммейт %player% передал Вам %money%$. Ваш новый баланс: %balance%$"
   no-join-no-prepare: "В настоящий момент не ведётся набор участников."
   player-team-join: "Игрок %player% присоединился к команде."
+  battle-start-title: "§x§a§f§0§1§3§5В атаку!"
 
 flags:
   - flag: ENTRY

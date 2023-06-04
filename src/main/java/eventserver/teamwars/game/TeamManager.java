@@ -28,8 +28,10 @@ public class TeamManager {
     @Getter
     private final Set<Team> teams = new HashSet<>();
     private final JavaPlugin plugin;
+    private final Game game;
 
-    public TeamManager(JavaPlugin plugin, FileConfiguration file) {
+    public TeamManager(JavaPlugin plugin, FileConfiguration file, Game game) {
+        this.game = game;
         this.plugin = plugin;
         final ConfigurationSection teamsSection = file.getConfigurationSection("teams");
         if (teamsSection == null) {
@@ -88,6 +90,7 @@ public class TeamManager {
 
     public void runPositionControlScheduler() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (game.getState() != Game.State.ACTIVE) return;
             for (Team team: teams) {
                 for (TeamMember member: team.getMembers()) {
                     if (member.getBukkitInstance() == null

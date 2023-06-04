@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import eventserver.teamwars.gui.TeamGuiElement;
 import lombok.Getter;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +75,13 @@ public class Team {
         return false;
     }
 
+    public void sendTitle(Title title) {
+        for (TeamMember member: members) {
+            final Player player = member.getBukkitInstance();
+            if (player == null) continue;
+            player.showTitle(title);
+        }
+    }
     public void sendMessage(String message) {
         members.forEach(member -> {
             Player player = member.getBukkitInstance();

@@ -11,15 +11,23 @@ import org.bukkit.entity.Player;
 public class TeamMember {
     private final String playerName;
     @Setter
+    private boolean life;
+
+    @Setter
     private double balance;
 
     @Getter @Setter
     private Player bukkitInstance = null;
 
+    public boolean isActive() {
+        return  (bukkitInstance != null && isLife());
+    }
+
     public JsonObject getJson() {
         JsonObject jo = new JsonObject();
         jo.add("username", new JsonPrimitive(playerName));
         jo.add("balance", new JsonPrimitive(balance));
+        jo.add("life", new JsonPrimitive(life));
         return jo;
     }
 }

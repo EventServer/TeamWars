@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -162,6 +163,31 @@ public class TeamManager {
         }
 
         @EventHandler
+        private void onPlayerDeath(PlayerDeathEvent event) {
+            final Player player = event.getPlayer();
+            final Team team = getPlayerTeam(player);
+            if (team == null) return;
+            final TeamMember member = team.getMember(player.getName());
+            assert member != null;
+            if (game.getState() == Game.State.BATTLE) {
+                member.setLife(false);
+            }
+            if (member.isLife()) {
+                player.setBedSpawnLocation(team.getSpawn());
+                broadcast(Config.MESSAGES.DEATH_ACTIVE
+                        .replace("%balance%", String.format("%.2f", member.getBalance()))
+                        .replace("%player%", player.getName())
+                        .replace("%team-prefix%", team.getPrefix()));
+                member.setBalance(0);
+            } else {
+                broadcast(Config.MESSAGES.DEATH_BATTLE
+                        .replace("%player%", player.getName())
+                        .replace("%team-prefix%", team.getPrefix()));
+                player.setBedSpawnLocation(Config.SPAWN);
+            }
+        }
+
+        @EventHandler
         private void onPlayerChat(final AsyncPlayerChatEvent event) {
             if (event.getMessage().startsWith("!")) return;
             final Player player = event.getPlayer();
@@ -169,6 +195,10 @@ public class TeamManager {
             if (team == null) return;
             team.sendMessage(player.getName()+": "+ ChatColor.GRAY+event.getMessage());
             event.setCancelled(true);
+        }
+
+        private void broadcast(String message) {
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
         }
     }
 }

@@ -71,6 +71,8 @@ public class Config {
         MESSAGES.WHERE_PAY = section.getString("where-pay");
         MESSAGES.TIME_FORMAT = section.getString("time-format");
         MESSAGES.BATTLE_START_TITLE = section.getString("battle-start-title");
+        MESSAGES.DEATH_ACTIVE = section.getString("death-active");
+        MESSAGES.DEATH_BATTLE = section.getString("death-battle");
     }
 
     public static class MESSAGES {
@@ -87,6 +89,8 @@ public class Config {
         public static String PLAYER_NO_MEMBER;
         public static String PLAYER_TEAM_JOIN;
         public static String TELEPORT_OK;
+        public static String DEATH_ACTIVE;
+        public static String DEATH_BATTLE;
         public static String NO_SPAWN_TELEPORT;
         public static String TEAM_FULL;
         public static String BATTLE_START_TITLE;
@@ -183,8 +187,9 @@ public class Config {
             if (memberSection == null)
                 continue;
             final double balance = memberSection.getDouble("balance", 0D);
+            final boolean life = memberSection.getBoolean("life", true);
 
-            result.add(new TeamMember(username, balance, Bukkit.getPlayer(username)));
+            result.add(new TeamMember(username, life, balance, Bukkit.getPlayer(username)));
         }
 
         return result;
@@ -198,10 +203,12 @@ public class Config {
     }
 
     public static void saveMembers(Team team) {
-        LinkedHashMap<String, Map> membersMap = new LinkedHashMap<>();
+        LinkedHashMap<String, Map<String, Object>> membersMap = new LinkedHashMap<>();
         team.getMembers().forEach(member -> {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("balance", member.getBalance());
+            if (!member.isLife())
+                map.put("life", false);
             membersMap.put(member.getPlayerName(), map);
         });
         file.createSection("teams."+team.getId()+".members", membersMap);

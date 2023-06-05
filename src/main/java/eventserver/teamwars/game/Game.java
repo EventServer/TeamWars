@@ -28,6 +28,7 @@ public class Game {
     private State state = State.INACTIVE;
     private final JavaPlugin plugin;
     private final Timer startBattleTimer = new Timer();
+    @Getter
     private long startBattleDate = 0;
 
     public Game(JavaPlugin plugin) {

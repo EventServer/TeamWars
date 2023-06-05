@@ -98,6 +98,15 @@ public class Team {
         return null;
     }
 
+    public int getActiveMembersCount() {
+        int count = 0;
+        for (TeamMember member: members) {
+            if (member.isActive())
+                count++;
+        }
+        return count;
+    }
+
     public void addMember(TeamMember member) {
         this.members.add(member);
         region.getMembers().addPlayer(member.getPlayerName());
@@ -105,7 +114,7 @@ public class Team {
     }
 
     public TeamMember addMember(@NotNull Player player) {
-        final TeamMember member = new TeamMember(player.getName(), 0, player);
+        final TeamMember member = new TeamMember(player.getName(), true, 0, player);
         addMember(member);
 
         return member;

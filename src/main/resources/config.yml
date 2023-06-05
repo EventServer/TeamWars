@@ -21,11 +21,13 @@ messages:
   no-balance: "У Вас недостаточно денег"
   you-no-team: "Вы не состоите в команде"
   member-kick: "Участник %player% был исключён из команды."
-  no-spawn-teleport: "Вы не можете телепортироваться на спавн во время активной игры"
+  no-spawn-teleport: "Вы не можете телепортироваться на спавн во время решающего боя"
   you-pay: "Вы передали %money%$ тиммейту %target%. Ваш новый баланс: %balance%$"
   where-pay: "Тиммейт %player% передал Вам %money%$. Ваш новый баланс: %balance%$"
   no-join-no-prepare: "В настоящий момент не ведётся набор участников."
   player-team-join: "Игрок %player% присоединился к команде."
+  death-active: "Игрок %team-prefix% %player% погиб и потерял %balance%$."
+  death-battle: "Игрок %team-prefix% %player% погиб и выбывает из игры."
   battle-start-title: "§x§a§f§0§1§3§5В атаку!"
 
 flags:

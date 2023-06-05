@@ -20,9 +20,13 @@ public class SpawnCommand implements CommandExecutor {
         if (team != null && game.getState() == Game.State.ACTIVE) {
             player.teleport(team.getSpawn());
             return true;
+        } else if (team != null && game.getState() == Game.State.BATTLE) {
+            player.sendMessage(Config.MESSAGES.NO_SPAWN_TELEPORT);
+            return true;
         }
 
-        player.teleport(Config.SPAWN);
+        if (team == null || game.getState() == Game.State.PREPARATION || game.getState() == Game.State.INACTIVE)
+            player.teleport(Config.SPAWN);
 
         return true;
     }

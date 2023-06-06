@@ -19,9 +19,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class Game {
+    private StartBattleTask battleTask;
     @Getter
     private final TeamManager teamManager;
     @Getter
@@ -48,7 +48,7 @@ public class Game {
     }
 
     public void setState(State state) {
-        startBattleTimer.cancel();
+        cancelBattleTask();
         new SetGameStateEvent(this, state).callEvent();
         switch (state) {
             case ACTIVE -> {
@@ -66,6 +66,7 @@ public class Game {
             } case PREPARATION -> {
 
             } case BATTLE -> {
+                startBattleDate = 0;
                 final Title title = Title.title(Component.text(Config.MESSAGES.BATTLE_START_TITLE), Component.text(""));
                 for (Team team: teamManager.getTeams()) {
                     team.sendTitle(title);
@@ -85,15 +86,21 @@ public class Game {
         this.state = state;
     }
 
+    private StartBattleTask createBattleTask() {
+        this.battleTask = new StartBattleTask(this);
+        return this.battleTask;
+    }
+
+    private void cancelBattleTask() {
+        if (this.battleTask != null) {
+            this.battleTask.cancel();
+            this.battleTask = null;
+        }
+    }
+
     public void planeStartBattle() {
-        startBattleTimer.cancel();
-        startBattleTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                setState(State.BATTLE);
-                startBattleTimer.cancel();
-            }
-        },new Date(startBattleDate), Long.MAX_VALUE);
+        cancelBattleTask();
+        startBattleTimer.scheduleAtFixedRate(createBattleTask(),new Date(startBattleDate), Long.MAX_VALUE);
     }
 
    public void saveGameStatistic() {

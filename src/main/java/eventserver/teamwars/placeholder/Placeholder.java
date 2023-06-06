@@ -5,8 +5,6 @@ import eventserver.teamwars.game.Game;
 import eventserver.teamwars.game.Team;
 import eventserver.teamwars.game.TeamMember;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.util.TimeFormat;
-import me.clip.placeholderapi.util.TimeUtil;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,14 +34,20 @@ public class Placeholder extends PlaceholderExpansion {
         if (identifier.equalsIgnoreCase("slots")) {
             return String.valueOf(Config.TEAMS_MAX_SLOTS);
         }
-//        if (identifier.equalsIgnoreCase("time")) {
-//            long date = game.getStartBattleDate() - System.currentTimeMillis();
-//            if (date < 1) {
-//                return "- - -";
-//            }
-//            return Config.MESSAGES.TIME_FORMAT.replace("%h%",
-//                    String.valueOf(TimeUnit.MILLISECONDS.toHours(date)))
-//        }
+        if (identifier.equalsIgnoreCase("time")) {
+            long date = game.getStartBattleDate() - System.currentTimeMillis();
+            if (date < 1) {
+                return "- - -";
+            }
+            long hours = TimeUnit.MILLISECONDS.toHours(date);
+            long min = TimeUnit.MILLISECONDS.toMinutes(date) -
+                    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(date));
+            long sec = TimeUnit.MILLISECONDS.toSeconds(date) - min*60 - hours * 3600;
+            return Config.MESSAGES.TIME_FORMAT
+                    .replace("%h%", String.valueOf(hours))
+                    .replace("%m%",  String.valueOf(min))
+                    .replace("%s%", String.valueOf(sec));
+        }
         if (identifier.startsWith("team-prefix-")) {
             String id = identifier.replace("team-prefix-", "");
             final Team team = game.getTeamManager().getTeam(id);

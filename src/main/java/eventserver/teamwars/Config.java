@@ -69,7 +69,7 @@ public class Config {
         MESSAGES.NO_BALANCE = section.getString("no-balance");
         MESSAGES.YOU_PAY = section.getString("you-pay");
         MESSAGES.WHERE_PAY = section.getString("where-pay");
-        MESSAGES.TIME_FORMAT = section.getString("time-format");
+        MESSAGES.TIME_FORMAT = section.getString("time-format", "%h%ч. %m%м. %s%с.");
         MESSAGES.BATTLE_START_TITLE = section.getString("battle-start-title");
         MESSAGES.DEATH_ACTIVE = section.getString("death-active");
         MESSAGES.DEATH_BATTLE = section.getString("death-battle");

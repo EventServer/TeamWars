@@ -12,6 +12,8 @@ public enum SubCommands {
     KICK(new KickMemberCommand(), new String[] {"kickmember"}, new Permission("teamwars.admin")),
     SET_GAME_TYPE(new SetGameTypeCommand(), new String[] {"gametype"}, new Permission("teamwars.admin")),
     PAY(new PayCommand(), new String[] {"pay"}, null),
+    SET_BALANCE(new SetBalanceCommand(), new String[] {"setbalance"}, new Permission("teamwars.admin")),
+    GET_BALANCE(new GetBalanceCommand(), new String[] {"getbalance"}, new Permission("teamwars.admin")),
     TP_HERE(new TphereCommand(), new String[] {"tphere"}, new Permission("teamwars.admin"));
     @Getter
     final SubCommand command;

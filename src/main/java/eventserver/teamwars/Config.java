@@ -52,12 +52,15 @@ public class Config {
         if (spawnLocation != null)
             SPAWN = parseLocation(world, spawnLocation);
 
+        CHAT_GLOBAL_FORMAT = file.getString("chat-global-format");
+
     }
 
     public static void parseMessages(ConfigurationSection section) {
         MESSAGES.NO_PERMISSION = section.getString("no-permission");
         MESSAGES.NO_JOIN_NO_PREPARE = section.getString("no-join-no-prepare");
         MESSAGES.NO_TEAM = section.getString("no-team");
+
         MESSAGES.YOU_TEAM_MEMBER = section.getString("you-team-member");
         MESSAGES.PLAYER_TEAM_JOIN = section.getString("player-team-join");
         MESSAGES.TELEPORT_OK = section.getString("teleport-ok");
@@ -73,15 +76,21 @@ public class Config {
         MESSAGES.BATTLE_START_TITLE = section.getString("battle-start-title");
         MESSAGES.DEATH_ACTIVE = section.getString("death-active");
         MESSAGES.DEATH_BATTLE = section.getString("death-battle");
+        MESSAGES.PREPARE_START = section.getStringList("prepare-start");
+        MESSAGES.NO_LOCAL_CHAT = section.getString("no-local-chat");
     }
+
+    public static String CHAT_GLOBAL_FORMAT;
 
     public static class MESSAGES {
         public static String NO_PERMISSION;
         public static String YOU_PAY;
         public static String WHERE_PAY;
         public static String NO_BALANCE;
+        public static List<String> PREPARE_START;
         public static String YOU_NO_TEAM;
         public static String TIME_FORMAT;
+        public static String NO_LOCAL_CHAT;
         public static String MEMBER_KICK;
         public static String NO_JOIN_NO_PREPARE;
         public static String YOU_TEAM_MEMBER;

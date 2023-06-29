@@ -48,6 +48,14 @@ public class Team {
         return balance;
     }
 
+    public void clearInventories() {
+        members.forEach(member -> {
+            Player player = member.getBukkitInstance();
+            if (player != null)
+                player.getInventory().clear();
+        });
+    }
+
     public void teleport(Location location) {
         members.forEach(member -> {
             Player player = member.getBukkitInstance();

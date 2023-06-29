@@ -13,12 +13,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -134,6 +136,17 @@ public class TeamManager {
         }
 
         @EventHandler
+        private void onDamage(EntityDamageByEntityEvent event) {
+            if (!(event.getEntity() instanceof Player player)) return;
+            if (!(event.getDamager() instanceof Player attacker)) return;
+            final Team team = getPlayerTeam(player);
+            final Team team2 = getPlayerTeam(attacker);
+            if (team == null || team2 == null || team == team2) {
+                event.setCancelled(true);
+            }
+        }
+
+        @EventHandler
         private void onPlayerPortalEvent(PlayerPortalEvent event) {
             final Player player = event.getPlayer();
             final Team team = getPlayerTeam(player);
@@ -184,17 +197,42 @@ public class TeamManager {
                         .replace("%player%", player.getName())
                         .replace("%team-prefix%", team.getPrefix()));
                 player.setBedSpawnLocation(Config.SPAWN);
+
             }
         }
 
+//        @EventHandler
+//        private void onChunkLoaded(ChunkLoadEvent event) {
+//            final Chunk chunk = event.getChunk();
+//            if (chunk.getWorld() != Config.world) return;
+//            for (Team team: teams) {
+//                if (team.getRegion().contains(chunk.getX(), 50, chunk.getZ())) {
+//                    chunk.setForceLoaded(true);
+//                }
+//            }
+//        }
+
         @EventHandler
         private void onPlayerChat(final AsyncPlayerChatEvent event) {
-            if (event.getMessage().startsWith("!")) return;
             final Player player = event.getPlayer();
-            final Team team = getPlayerTeam(player);
-            if (team == null) return;
-            team.sendMessage(player.getName()+": "+ ChatColor.GRAY+event.getMessage());
             event.setCancelled(true);
+            final Team team = game.getTeamManager().getPlayerTeam(player);
+            final String prefix = (team == null) ? ChatColor.GRAY+"■":team.getPrefix();
+            if (event.getMessage().startsWith("!")) {
+                final String message = Config.CHAT_GLOBAL_FORMAT
+                                .replace("%player%", player.getName())
+                                .replace("%text%", event.getMessage().substring(1))
+                                .replace("%team%", prefix);
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    p.sendMessage(message);
+                });
+                return;
+            }
+            if (team == null) {
+                player.sendMessage(Config.MESSAGES.NO_LOCAL_CHAT);
+            } else {
+                team.sendMessage(player.getName() + ": " + ChatColor.GRAY + event.getMessage());
+            }
         }
 
         private void broadcast(String message) {

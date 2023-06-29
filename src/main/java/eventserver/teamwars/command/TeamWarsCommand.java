@@ -36,7 +36,7 @@ public class TeamWarsCommand implements TabExecutor {
         if (args.length == 1) {
             ArrayList<String> tabs = new ArrayList<>();
             for (SubCommands cmd : SubCommands.values()) {
-                if (cmd.getPermission() == null || sender.hasPermission(cmd.getPermission()))
+                if ((cmd.getPermission() == null || sender.hasPermission(cmd.getPermission()) && cmd.getAliases()[0].startsWith(args[0])))
                     tabs.add(cmd.getAliases()[0]);
             }
             return tabs;

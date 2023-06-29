@@ -10,6 +10,7 @@ import eventserver.teamwars.event.SetGameStateEvent;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -56,6 +57,7 @@ public class Game {
                 planeStartBattle();
                 teamManager.getTeams().forEach(team -> {
                     team.teleport(team.getSpawn());
+                    team.clearInventories();
                 });
             } case INACTIVE -> {
                 teamManager.getTeams().forEach(team -> {
@@ -64,7 +66,11 @@ public class Game {
                 saveGameStatistic();
                 teamManager.reset();
             } case PREPARATION -> {
-
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    for (String s: Config.MESSAGES.PREPARE_START) {
+                        p.sendMessage(s);
+                    }
+                });
             } case BATTLE -> {
                 startBattleDate = 0;
                 final Title title = Title.title(Component.text(Config.MESSAGES.BATTLE_START_TITLE), Component.text(""));

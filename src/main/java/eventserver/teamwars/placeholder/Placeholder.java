@@ -5,6 +5,7 @@ import eventserver.teamwars.game.Game;
 import eventserver.teamwars.game.Team;
 import eventserver.teamwars.game.TeamMember;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,11 +67,12 @@ public class Placeholder extends PlaceholderExpansion {
             if (team == null) return "0";
             return String.valueOf(team.getActiveMembersCount());
         }
+        if (player == null) return "";
         if (identifier.equalsIgnoreCase("team-prefix")) {
             final Team team = game.getTeamManager().getPlayerTeam(player);
             if (team != null)
                 return team.getPrefix();
-            return "-";
+            return ChatColor.GRAY+"■";
         }
         if (identifier.equalsIgnoreCase("team-id")) {
             final Team team = game.getTeamManager().getPlayerTeam(player);

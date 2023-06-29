@@ -18,10 +18,10 @@ public class JoinCommand implements SubCommand {
     @Override
     public void onCommand(@NonNull CommandSender sender, @NotNull @NonNull String[] args) {
         if (!(sender instanceof Player player)) return;
-        if (args.length < 2) {
-            sender.sendMessage("/teamwars join <teamId>");
-            return;
-        }
+            if (args.length < 2) {
+                sender.sendMessage("/teamwars join <teamId>");
+                return;
+            }
 
         final Game game = TeamWars.getInstance().getGame();
         if (game.getState() != Game.State.PREPARATION) {

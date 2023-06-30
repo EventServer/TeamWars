@@ -6,12 +6,14 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import eventserver.teamwars.Config;
+import eventserver.teamwars.event.MemberDeathEvent;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -20,7 +22,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,9 +183,12 @@ public class TeamManager {
             if (team == null) return;
             final TeamMember member = team.getMember(player.getName());
             assert member != null;
+            if (!member.isLife()) return;
+
             if (game.getState() == Game.State.BATTLE) {
                 member.setLife(false);
             }
+
             if (member.isLife()) {
                 player.setBedSpawnLocation(team.getSpawn());
                 broadcast(Config.MESSAGES.DEATH_ACTIVE
@@ -192,13 +196,15 @@ public class TeamManager {
                         .replace("%player%", player.getName())
                         .replace("%team-prefix%", team.getPrefix()));
                 member.setBalance(0);
+                member.setLife(false);
             } else {
                 broadcast(Config.MESSAGES.DEATH_BATTLE
                         .replace("%player%", player.getName())
                         .replace("%team-prefix%", team.getPrefix()));
                 player.setBedSpawnLocation(Config.SPAWN);
-
             }
+
+            new MemberDeathEvent(team, member, !member.isLife()).callEvent();
         }
 
 //        @EventHandler
@@ -212,7 +218,7 @@ public class TeamManager {
 //            }
 //        }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
         private void onPlayerChat(final AsyncPlayerChatEvent event) {
             final Player player = event.getPlayer();
             event.setCancelled(true);

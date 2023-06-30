@@ -31,6 +31,7 @@ messages:
   player-team-join: "Игрок %player% присоединился к команде."
   death-active: "Игрок %team-prefix% %player% погиб и потерял %balance%$."
   death-battle: "Игрок %team-prefix% %player% погиб и выбывает из игры."
+  leave-team: "Игрок %player% покинул команду."
   prepare-start:
     - ""
     - "§x§f§b§5§8§1§3Началась подготовка к игре!"

@@ -62,6 +62,7 @@ public class Game {
             } case INACTIVE -> {
                 teamManager.getTeams().forEach(team -> {
                     team.teleport(Config.SPAWN);
+                    team.clearInventories();
                 });
                 saveGameStatistic();
                 teamManager.reset();

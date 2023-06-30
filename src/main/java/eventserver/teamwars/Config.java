@@ -78,6 +78,7 @@ public class Config {
         MESSAGES.DEATH_BATTLE = section.getString("death-battle");
         MESSAGES.PREPARE_START = section.getStringList("prepare-start");
         MESSAGES.NO_LOCAL_CHAT = section.getString("no-local-chat");
+        MESSAGES.LEAVE_TEAM = section.getString("leave-team");
     }
 
     public static String CHAT_GLOBAL_FORMAT;
@@ -94,6 +95,7 @@ public class Config {
         public static String MEMBER_KICK;
         public static String NO_JOIN_NO_PREPARE;
         public static String YOU_TEAM_MEMBER;
+        public static String LEAVE_TEAM;
         public static String NO_TEAM;
         public static String PLAYER_NO_MEMBER;
         public static String PLAYER_TEAM_JOIN;

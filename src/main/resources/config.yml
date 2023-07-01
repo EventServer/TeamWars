@@ -12,7 +12,7 @@ active-time: 120
 time-format: "%h%ч. %m%м. %s%с."
 
 chat-global-format: "§x§f§b§e§6§2§4ɢ §7| %team%§f %player%§7: %text%"
-
+inventory-return-price: 350
 messages:
   teleport-ok: "Телепортирую..."
   no-permission: "§cНедостаточно прав"
@@ -32,6 +32,12 @@ messages:
   death-active: "Игрок %team-prefix% %player% погиб и потерял %balance%$."
   death-battle: "Игрок %team-prefix% %player% погиб и выбывает из игры."
   leave-team: "Игрок %player% покинул команду."
+  no-keep-inventory: "Вам нечего возвращать."
+  keep-inventory-notify:
+    - ""
+    - "§x§f§b§5§8§1§3Посетите хранителя, чтобы выкупить свой инвентарь!"
+    - "§cЕсли Вы погибните еще раз, старый инвентарь выкупить будет нельзя!"
+    - ""
   prepare-start:
     - ""
     - "§x§f§b§5§8§1§3Началась подготовка к игре!"

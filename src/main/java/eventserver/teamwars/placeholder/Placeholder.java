@@ -72,7 +72,7 @@ public class Placeholder extends PlaceholderExpansion {
             final Team team = game.getTeamManager().getPlayerTeam(player);
             if (team != null)
                 return team.getPrefix();
-            return ChatColor.GRAY+"■";
+            return ChatColor.GRAY+"■ ";
         }
         if (identifier.equalsIgnoreCase("team-id")) {
             final Team team = game.getTeamManager().getPlayerTeam(player);

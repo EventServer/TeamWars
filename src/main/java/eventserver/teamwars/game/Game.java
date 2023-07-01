@@ -30,6 +30,8 @@ public class Game {
     private final JavaPlugin plugin;
     private final Timer startBattleTimer = new Timer();
     @Getter
+    private final InventoryReturnManager inventoryReturnManager = new InventoryReturnManager(this);
+    @Getter
     private long startBattleDate = 0;
 
     public Game(JavaPlugin plugin) {
@@ -59,6 +61,7 @@ public class Game {
                     team.teleport(team.getSpawn());
                     team.clearInventories();
                 });
+                inventoryReturnManager.clear();
             } case INACTIVE -> {
                 teamManager.getTeams().forEach(team -> {
                     team.teleport(Config.SPAWN);
@@ -66,6 +69,7 @@ public class Game {
                 });
                 saveGameStatistic();
                 teamManager.reset();
+                inventoryReturnManager.clear();
             } case PREPARATION -> {
                 Bukkit.getOnlinePlayers().forEach(p -> {
                     for (String s: Config.MESSAGES.PREPARE_START) {

@@ -5,6 +5,7 @@ import eventserver.teamwars.TeamWars;
 import eventserver.teamwars.command.SubCommand;
 import eventserver.teamwars.game.Game;
 import eventserver.teamwars.game.Team;
+import eventserver.teamwars.game.TeamMember;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-public class LeaveCommand implements SubCommand {
+public class ReturnInventoryCommand implements SubCommand {
     @Override
     public void onCommand(@NonNull CommandSender sender, @NotNull @NonNull String[] args) {
         if (!(sender instanceof Player player)) return;
@@ -25,9 +26,21 @@ public class LeaveCommand implements SubCommand {
             return;
         }
 
-        team.kickMember(team.getMember(player.getName()));
-        player.teleport(Config.SPAWN);
-        team.sendMessage(Config.MESSAGES.LEAVE_TEAM.replace("%player%", player.getName()));
+        if (!game.getInventoryReturnManager().isContains(player)) {
+            player.sendMessage(Config.MESSAGES.NO_KEEP_INVENTORY);
+            return;
+        }
+
+        TeamMember member = team.getMember(player.getName());
+        assert member != null;
+        if (member.getBalance() < Config.INVENTORY_RETURN_PRICE) {
+            player.sendMessage(Config.MESSAGES.NO_BALANCE);
+            return;
+        }
+
+        member.setBalance(member.getBalance() - Config.INVENTORY_RETURN_PRICE);
+
+        game.getInventoryReturnManager().returnInventory(player);
     }
 
     @Override

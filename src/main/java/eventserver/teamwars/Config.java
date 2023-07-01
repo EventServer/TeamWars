@@ -54,6 +54,7 @@ public class Config {
 
         CHAT_GLOBAL_FORMAT = file.getString("chat-global-format");
 
+        INVENTORY_RETURN_PRICE = file.getInt("inventory-return-price", 350);
     }
 
     public static void parseMessages(ConfigurationSection section) {
@@ -79,19 +80,24 @@ public class Config {
         MESSAGES.PREPARE_START = section.getStringList("prepare-start");
         MESSAGES.NO_LOCAL_CHAT = section.getString("no-local-chat");
         MESSAGES.LEAVE_TEAM = section.getString("leave-team");
+        MESSAGES.KEEP_INVENTORY_NOTIFY = section.getStringList("keep-inventory-notify");
+        MESSAGES.NO_KEEP_INVENTORY = section.getString("no-keep-inventory");
     }
 
+    public static int INVENTORY_RETURN_PRICE;
     public static String CHAT_GLOBAL_FORMAT;
 
     public static class MESSAGES {
         public static String NO_PERMISSION;
         public static String YOU_PAY;
         public static String WHERE_PAY;
+        public static String NO_KEEP_INVENTORY;
         public static String NO_BALANCE;
         public static List<String> PREPARE_START;
         public static String YOU_NO_TEAM;
         public static String TIME_FORMAT;
         public static String NO_LOCAL_CHAT;
+        public static List<String> KEEP_INVENTORY_NOTIFY;
         public static String MEMBER_KICK;
         public static String NO_JOIN_NO_PREPARE;
         public static String YOU_TEAM_MEMBER;

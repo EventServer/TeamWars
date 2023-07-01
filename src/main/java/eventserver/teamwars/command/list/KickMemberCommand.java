@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 
 public class KickMemberCommand implements SubCommand {
@@ -45,6 +46,6 @@ public class KickMemberCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return null;
+        return Collections.emptyList();
     }
 }

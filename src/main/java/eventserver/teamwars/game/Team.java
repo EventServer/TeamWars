@@ -25,6 +25,7 @@ public class Team {
     private final Location spawn;
     private final Location netherSpawn;
     private final String prefix;
+    private final TopMoneyService topMoneyService;
 
     public Team(String id, TeamGuiElement guiElement, ProtectedCuboidRegion region, ProtectedCuboidRegion netherRegion, Location spawn, Location netherSpawn, Set<TeamMember> members, String prefix) {
         this.id = id;
@@ -38,6 +39,8 @@ public class Team {
 
         this.members.forEach(member ->
                 region.getMembers().addPlayer(member.getPlayerName()));
+
+        this.topMoneyService = new TopMoneyService(this);
     }
 
     public double getFullBalance() {

@@ -5,9 +5,10 @@ import com.google.gson.JsonPrimitive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.bukkit.entity.Player;
 
-@AllArgsConstructor @Getter
+@AllArgsConstructor @Getter @ToString
 public class TeamMember {
     private final String playerName;
     @Setter

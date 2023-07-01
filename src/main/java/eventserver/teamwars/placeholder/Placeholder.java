@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Placeholder extends PlaceholderExpansion {
     private final Game game;
@@ -32,6 +34,7 @@ public class Placeholder extends PlaceholderExpansion {
     }
 
     public String onPlaceholderRequest(Player player, String identifier) {
+
         if (identifier.equalsIgnoreCase("slots")) {
             return String.valueOf(Config.TEAMS_MAX_SLOTS);
         }
@@ -66,6 +69,33 @@ public class Placeholder extends PlaceholderExpansion {
             final Team team = game.getTeamManager().getTeam(id);
             if (team == null) return "0";
             return String.valueOf(team.getActiveMembersCount());
+        }
+        Pattern pattern = Pattern.compile("top-money-name-([A-Za-z0-9]+)-(\\d+)");
+        Matcher matcher = pattern.matcher(identifier);
+        if (matcher.matches()) {
+            String teamId = matcher.group(1);
+            int place = Integer.parseInt(matcher.group(2));
+            Team team = game.getTeamManager().getTeam(teamId);
+            if (team == null)
+                return "- - -";
+            TeamMember member = team.getTopMoneyService().get(place);
+            if (member == null)
+                return "- - -";
+            return member.getPlayerName();
+        }
+
+        pattern = Pattern.compile("top-money-balance-([A-Za-z0-9]+)-(\\d+)");
+        matcher = pattern.matcher(identifier);
+        if (matcher.matches()) {
+            String teamId = matcher.group(1);
+            int place = Integer.parseInt(matcher.group(2));
+            Team team = game.getTeamManager().getTeam(teamId);
+            if (team == null)
+                return "- - -";
+            TeamMember member = team.getTopMoneyService().get(place);
+            if (member == null)
+                return "- - -";
+            return String.format("%,.0f", member.getBalance()).replace(",", ".");
         }
         if (player == null) return "";
         if (identifier.equalsIgnoreCase("team-prefix")) {

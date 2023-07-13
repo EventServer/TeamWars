@@ -136,4 +136,10 @@ public class TWGame implements Game {
        }
    }
 
+    @Override
+    public void setStartBattleDate(long date) {
+        this.startBattleDate = date;
+        planeStartBattle();
+    }
+
 }

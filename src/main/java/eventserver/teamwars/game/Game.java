@@ -43,6 +43,7 @@ public interface Game {
      */
 
     long getStartBattleDate();
+    void setStartBattleDate(long date);
 
 
     public enum State {

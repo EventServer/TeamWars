@@ -3,6 +3,7 @@ package eventserver.teamwars;
 import eventserver.teamwars.command.SpawnCommand;
 import eventserver.teamwars.command.TeamWarsCommand;
 import eventserver.teamwars.game.Game;
+import eventserver.teamwars.game.TWGame;
 import eventserver.teamwars.placeholder.Placeholder;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,7 +22,7 @@ public final class TeamWars extends JavaPlugin {
         saveDefaultConfig();
         new Config(getConfig());
 
-        this.game = new Game(this);
+        this.game = new TWGame(this);
         placeholder = new Placeholder(game);
         placeholder.register();
         Objects.requireNonNull(getServer().getPluginCommand("teamwars")).setExecutor(new TeamWarsCommand());

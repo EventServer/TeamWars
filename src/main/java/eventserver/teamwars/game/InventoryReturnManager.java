@@ -2,7 +2,6 @@ package eventserver.teamwars.game;
 
 import eventserver.teamwars.Config;
 import eventserver.teamwars.TeamWars;
-import eventserver.teamwars.event.MemberBuyReturnInventoryEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

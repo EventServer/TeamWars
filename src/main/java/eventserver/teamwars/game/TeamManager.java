@@ -182,8 +182,10 @@ public class TeamManager {
             assert member != null;
             if (!member.isLife()) return;
 
+            boolean notify = false;
             if (game.getState() == Game.State.BATTLE) {
                 member.setLife(false);
+                notify = true;
             }
 
             if (member.isLife()) {
@@ -194,7 +196,7 @@ public class TeamManager {
                         .replace("%team-prefix%", team.getPrefix()));
                 member.setBalance(0);
                 game.getInventoryReturnManager().onDeath(event);
-            } else {
+            } else if (notify) {
                 broadcast(Config.MESSAGES.DEATH_BATTLE
                         .replace("%player%", player.getName())
                         .replace("%team-prefix%", team.getPrefix()));

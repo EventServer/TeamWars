@@ -3,6 +3,7 @@ package eventserver.teamwars.command.list;
 import eventserver.teamwars.Config;
 import eventserver.teamwars.TeamWars;
 import eventserver.teamwars.command.SubCommand;
+import eventserver.teamwars.event.MemberBuyReturnInventoryEvent;
 import eventserver.teamwars.game.Game;
 import eventserver.teamwars.game.Team;
 import eventserver.teamwars.game.TeamMember;
@@ -33,12 +34,15 @@ public class ReturnInventoryCommand implements SubCommand {
 
         TeamMember member = team.getMember(player.getName());
         assert member != null;
-        if (member.getBalance() < Config.INVENTORY_RETURN_PRICE) {
+
+        MemberBuyReturnInventoryEvent event = new MemberBuyReturnInventoryEvent(team, member, Config.INVENTORY_RETURN_PRICE);
+        event.callEvent();
+        if (member.getBalance() < event.getPrice()) {
             player.sendMessage(Config.MESSAGES.NO_BALANCE);
             return;
         }
 
-        member.setBalance(member.getBalance() - Config.INVENTORY_RETURN_PRICE);
+        member.setBalance(member.getBalance() - event.getPrice());
 
         game.getInventoryReturnManager().returnInventory(player);
     }

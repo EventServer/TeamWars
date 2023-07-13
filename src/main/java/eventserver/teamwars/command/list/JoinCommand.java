@@ -18,17 +18,12 @@ public class JoinCommand implements SubCommand {
     @Override
     public void onCommand(@NonNull CommandSender sender, @NotNull @NonNull String[] args) {
         if (!(sender instanceof Player player)) return;
-            if (args.length < 2) {
-                sender.sendMessage("/teamwars join <teamId>");
-                return;
-            }
-
-        final Game game = TeamWars.getInstance().getGame();
-        if (game.getState() != Game.State.PREPARATION) {
-            sender.sendMessage(Config.MESSAGES.NO_JOIN_NO_PREPARE);
+        if (args.length < 2) {
+            sender.sendMessage("/teamwars join <teamId>");
             return;
         }
 
+        final Game game = TeamWars.getInstance().getGame();
         final Team team = game.getTeamManager().getTeam(args[1]);
 
         if (team == null) {
@@ -36,15 +31,24 @@ public class JoinCommand implements SubCommand {
             return;
         }
 
+        if (game.getState() != Game.State.PREPARATION && team.getAdditionalMembers() <= 0) {
+            sender.sendMessage(Config.MESSAGES.NO_JOIN_NO_PREPARE);
+            return;
+        }
+
+
         if (game.getTeamManager().getPlayerTeam(player) != null) {
             player.sendMessage(Config.MESSAGES.YOU_TEAM_MEMBER);
             return;
         }
 
-        if (team.getMembers().size() >= Config.TEAMS_MAX_SLOTS) {
+        if (team.getMembers().size() >= Config.TEAMS_MAX_SLOTS && team.getAdditionalMembers() <= 0) {
             player.sendMessage(Config.MESSAGES.TEAM_FULL);
             return;
         }
+
+        if (team.getAdditionalMembers() > 0)
+            team.setAdditionalMembers(team.getAdditionalMembers()-1);
 
         team.addMember(player);
         team.sendMessage(Config.MESSAGES.PLAYER_TEAM_JOIN.replace("%player%", player.getName()));

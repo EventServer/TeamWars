@@ -33,13 +33,6 @@ public interface Game {
 
     State getState();
 
-    /**
-     * Возвращает количество игроков,
-     * которое может вступить в команду
-     * прямо сейчас
-     * @return
-     */
-    int getAdditionalMembers();
 
     InventoryReturnManager getInventoryReturnManager();
 
@@ -51,13 +44,6 @@ public interface Game {
 
     long getStartBattleDate();
 
-    /**
-     * Устанавливает количество игроков,
-     * которые смогут вступить в команду прямо сейчас
-     * @param additionalMembers
-     */
-
-    void setAdditionalMembers(int additionalMembers);
 
     public enum State {
         INACTIVE,

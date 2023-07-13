@@ -71,6 +71,7 @@ public class Config {
         MESSAGES.NO_SPAWN_TELEPORT = section.getString("no-spawn-teleport");
         MESSAGES.YOU_NO_TEAM = section.getString("you-no-team");
         MESSAGES.NO_BALANCE = section.getString("no-balance");
+        MESSAGES.SET_ADDITIONAL = section.getString("set-additional");
         MESSAGES.YOU_PAY = section.getString("you-pay");
         MESSAGES.WHERE_PAY = section.getString("where-pay");
         MESSAGES.TIME_FORMAT = section.getString("time-format", "%h%ч. %m%м. %s%с.");
@@ -94,6 +95,7 @@ public class Config {
         public static String NO_KEEP_INVENTORY;
         public static String NO_BALANCE;
         public static List<String> PREPARE_START;
+        public static String SET_ADDITIONAL;
         public static String YOU_NO_TEAM;
         public static String TIME_FORMAT;
         public static String NO_LOCAL_CHAT;

@@ -28,8 +28,6 @@ public class TWGame implements Game {
     private final TeamManager teamManager;
     @Getter
     private State state = State.INACTIVE;
-    @Getter @Setter
-    private int additionalMembers = 0;
     private final JavaPlugin plugin;
     private final Timer startBattleTimer = new Timer();
     @Getter

@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import eventserver.teamwars.gui.TeamGuiElement;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -26,6 +27,8 @@ public class Team {
     private final Location netherSpawn;
     private final String prefix;
     private final TopMoneyService topMoneyService;
+    @Getter @Setter
+    private int additionalMembers = 0;
 
     public Team(String id, TeamGuiElement guiElement, ProtectedCuboidRegion region, ProtectedCuboidRegion netherRegion, Location spawn, Location netherSpawn, Set<TeamMember> members, String prefix) {
         this.id = id;

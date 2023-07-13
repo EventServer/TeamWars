@@ -5,6 +5,11 @@ import com.google.gson.JsonObject;
 public interface Game {
     JsonObject getJson();
 
+    /**
+     * Переключить состояние игры
+     * @param state
+     */
+
     void setState(State state);
 
     StartBattleTask createBattleTask();

@@ -6,6 +6,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class SetGameStateEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     @Override
@@ -15,9 +16,7 @@ public class SetGameStateEvent extends Event {
     public static HandlerList getHandlerList() {
         return handlers;
     }
-    @Getter
     private final Game game;
-    @Getter
     private final Game.State newState;
 
     public SetGameStateEvent(Game game, Game.State newState) {

@@ -7,6 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class MemberDeathEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     @Override
@@ -16,11 +17,8 @@ public class MemberDeathEvent extends Event {
     public static HandlerList getHandlerList() {
         return handlers;
     }
-    @Getter
     private final TeamMember member;
-    @Getter
     private final boolean finalDeath;
-    @Getter
     private final Team team;
 
     public MemberDeathEvent(Team team, TeamMember member, boolean finalDeath) {

@@ -22,7 +22,7 @@ public class TopMoneyService {
         members.addAll(sorted);
     }
 
-    public TeamMember get(int place) {;
+    public TeamMember get(int place) {
         if (members.size() < place)
             return null;
         return members.get(place-1);

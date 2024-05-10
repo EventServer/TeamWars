@@ -28,15 +28,14 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
-    compileOnly "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
+    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
     compileOnly 'me.clip:placeholderapi:2.11.2'
     compileOnly fileTree("/libs/")
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
 
 
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 16
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = 16

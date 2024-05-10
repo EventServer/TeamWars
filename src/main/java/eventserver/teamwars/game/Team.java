@@ -3,12 +3,14 @@ package eventserver.teamwars.game;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
+import eventserver.teamwars.TeamWars;
+import eventserver.teamwars.game.region.TeamRegion;
 import eventserver.teamwars.gui.TeamGuiElement;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,29 +23,38 @@ public class Team {
     private final Set<TeamMember> members;
     private final String id;
     private final TeamGuiElement guiElement;
-    private final ProtectedCuboidRegion region;
-    private final ProtectedCuboidRegion netherRegion;
-    private final Location spawn;
-    private final Location netherSpawn;
+    private final TeamRegion region;
+    private final TeamRegion netherRegion;
     private final String prefix;
     private final TopMoneyService topMoneyService;
     @Getter @Setter
     private int additionalMembers = 0;
 
-    public Team(String id, TeamGuiElement guiElement, ProtectedCuboidRegion region, ProtectedCuboidRegion netherRegion, Location spawn, Location netherSpawn, Set<TeamMember> members, String prefix) {
+    public Team(String id, TeamGuiElement guiElement, TeamRegion region,
+                TeamRegion netherRegion,
+                Set<TeamMember> members, String prefix) {
+
         this.id = id;
         this.guiElement = guiElement;
         this.region = region;
         this.netherRegion = netherRegion;
-        this.spawn = spawn;
-        this.netherSpawn = netherSpawn;
         this.members = members;
         this.prefix = prefix;
 
+        final var wgRegion = region.getRegion();
         this.members.forEach(member ->
-                region.getMembers().addPlayer(member.getPlayerName()));
+                wgRegion.getMembers().addPlayer(member.getPlayerName()));
 
         this.topMoneyService = new TopMoneyService(this);
+    }
+
+    public void clearMembers() {
+        this.members.forEach(m -> {
+            if (m.getBukkitInstance() != null) {
+                TeamWars.getInstance().getBorderManager().resetBorder(m.getBukkitInstance());
+            }
+        });
+        this.members.clear();
     }
 
     public double getFullBalance() {
@@ -52,6 +63,27 @@ public class Team {
             balance += member.getBalance();
         }
         return balance;
+    }
+
+    public void syncMembersBorder() {
+        for (TeamMember member: members) {
+            if (member.getBukkitInstance() != null)
+                syncWorldBorder(member.getBukkitInstance());
+        }
+    }
+
+    public void syncWorldBorder(Player player) {
+        final World world = player.getWorld();
+        final TeamRegion r = switch (world.getEnvironment()) {
+            case NORMAL -> region;
+            case NETHER -> netherRegion;
+            default -> null;
+        };
+
+        if (r == null) return;
+
+        TeamWars.getInstance().getBorderManager().setBorder(player,
+                r.calculateCenter(), r.calculateSideLength());
     }
 
     public void clearInventories() {
@@ -89,6 +121,14 @@ public class Team {
         return false;
     }
 
+    public void teleportMember(Player player, Location to) {
+        final Location old = player.getLocation().clone();
+        player.teleport(to);
+        if (old.getWorld() != to.getWorld()) {
+            syncWorldBorder(player);
+        }
+    }
+
     public void sendTitle(Title title) {
         for (TeamMember member: members) {
             final Player player = member.getBukkitInstance();
@@ -123,12 +163,12 @@ public class Team {
 
     public void addMember(TeamMember member) {
         this.members.add(member);
-        region.getMembers().addPlayer(member.getPlayerName());
-        netherRegion.getMembers().addPlayer(member.getPlayerName());
+        region.getRegion().getMembers().addPlayer(member.getPlayerName());
+        netherRegion.getRegion().getMembers().addPlayer(member.getPlayerName());
     }
 
     public TeamMember addMember(@NotNull Player player) {
-        final TeamMember member = new TeamMember(player.getName(), true, 0, player);
+        final TeamMember member = new TeamMember(player.getName(), true, 0,0, 0, player);
         addMember(member);
 
         return member;
@@ -137,8 +177,8 @@ public class Team {
 
     public void kickMember(TeamMember member) {
         members.remove(member);
-        region.getMembers().removePlayer(member.getPlayerName());
-        netherRegion.getMembers().removePlayer(member.getPlayerName());
+        region.getRegion().getMembers().removePlayer(member.getPlayerName());
+        netherRegion.getRegion().getMembers().removePlayer(member.getPlayerName());
     }
 
     /**
@@ -147,6 +187,6 @@ public class Team {
      * @return Team
      */
     public Team clone() {
-        return new Team(id, guiElement, region, netherRegion, spawn, netherSpawn, Collections.emptySet(), prefix);
+        return new Team(id, guiElement, region, netherRegion, Collections.emptySet(), prefix);
     }
 }

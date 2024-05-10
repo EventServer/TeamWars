@@ -22,7 +22,7 @@ public class InventoryReturnManager {
     }
 
     public void onDeath(PlayerDeathEvent event) {
-        final Player player = event.getPlayer();
+        final Player player = event.getEntity();
         Team team = game.getTeamManager().getPlayerTeam(player);
         if (team == null) return;
 
@@ -45,7 +45,7 @@ public class InventoryReturnManager {
         player.setExp(0);
         player.setLevel(0);
         Bukkit.getScheduler().runTaskLater(TeamWars.getInstance(), () -> {
-            player.teleport(team.getSpawn());
+            player.teleport(team.getRegion().getSpawn());
         }, 2);
         inventories.put(player, items);
 

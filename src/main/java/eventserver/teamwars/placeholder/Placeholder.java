@@ -119,6 +119,24 @@ public class Placeholder extends PlaceholderExpansion {
                 return "0";
             return String.format("%.2f",member.getBalance());
         }
+        if (identifier.equalsIgnoreCase("kills")) {
+            final Team team = game.getTeamManager().getPlayerTeam(player);
+            if (team == null)
+                return "0";
+            final TeamMember member = team.getMember(player.getName());
+            if (member == null)
+                return "0";
+            return String.valueOf(member.getKills());
+        }
+        if (identifier.equalsIgnoreCase("deaths")) {
+            final Team team = game.getTeamManager().getPlayerTeam(player);
+            if (team == null)
+                return "0";
+            final TeamMember member = team.getMember(player.getName());
+            if (member == null)
+                return "0";
+            return String.valueOf(member.getDeaths());
+        }
         if (identifier.equalsIgnoreCase("team-size")) {
             final Team team = game.getTeamManager().getPlayerTeam(player);
             if (team == null)

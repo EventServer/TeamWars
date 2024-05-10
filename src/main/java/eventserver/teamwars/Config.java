@@ -1,14 +1,13 @@
 package eventserver.teamwars;
 
-import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import eventserver.teamwars.game.Team;
 import eventserver.teamwars.game.TeamMember;
+import eventserver.teamwars.game.region.TeamRegion;
 import eventserver.teamwars.gui.TeamGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,6 +33,7 @@ public class Config {
         parseMessages(messagesSection);
         world = Bukkit.getWorld(file.getString("world", "world"));
         worldNether = Bukkit.getWorld(file.getString("nether-world", "world_nether"));
+        TeamWars.getInstance().getLogger().info("World: "+ world+", Nether: "+worldNether);
 
         List<?> objects = file.getList("flags");
         final FlagRegistry flagRegistry = WorldGuard.getInstance().getFlagRegistry();
@@ -50,7 +50,7 @@ public class Config {
 
         ConfigurationSection spawnLocation = file.getConfigurationSection("spawn-location");
         if (spawnLocation != null)
-            SPAWN = parseLocation(world, spawnLocation);
+            SPAWN = parseLocation(spawnLocation);
 
         CHAT_GLOBAL_FORMAT = file.getString("chat-global-format");
 
@@ -77,6 +77,7 @@ public class Config {
         MESSAGES.TIME_FORMAT = section.getString("time-format", "%h%ч. %m%м. %s%с.");
         MESSAGES.BATTLE_START_TITLE = section.getString("battle-start-title");
         MESSAGES.DEATH_ACTIVE = section.getString("death-active");
+        MESSAGES.PORTAL_BATTLE_DENY = section.getString("portal-battle-deny");
         MESSAGES.DEATH_BATTLE = section.getString("death-battle");
         MESSAGES.PREPARE_START = section.getStringList("prepare-start");
         MESSAGES.NO_LOCAL_CHAT = section.getString("no-local-chat");
@@ -97,6 +98,7 @@ public class Config {
         public static List<String> PREPARE_START;
         public static String SET_ADDITIONAL;
         public static String YOU_NO_TEAM;
+        public static String PORTAL_BATTLE_DENY;
         public static String TIME_FORMAT;
         public static String NO_LOCAL_CHAT;
         public static List<String> KEEP_INVENTORY_NOTIFY;
@@ -122,10 +124,11 @@ public class Config {
     }
 
     public static void setSpawn(Location location) {
-        Map<String, Integer> l = new LinkedHashMap<>();
+        Map<String, Object> l = new LinkedHashMap<>();
         l.put("x", location.getBlockX());
         l.put("z", location.getBlockZ());
         l.put("y", location.getBlockY());
+        l.put("world", location.getWorld().getName());
 
         file.createSection("spawn-location", l);
         TeamWars.getInstance().saveConfig();
@@ -180,13 +183,15 @@ public class Config {
             return null;
         }
         final String prefix = section.getString("prefix", "");
-        final ProtectedCuboidRegion region = parseTeamRegion(id, regionSection);
-        final ProtectedCuboidRegion netherRegion = parseTeamRegion(id, netherRegionSection);
+        final TeamRegion region = new TeamRegion(world, regionSection);
+        region.createWgRegion(id);
+        final TeamRegion netherRegion = new TeamRegion(worldNether, netherRegionSection);
+        netherRegion.createWgRegion(id);
         final TeamGuiElement guiElement = parseGuiElement(guiSection);
-        final Location spawn = parseLocation(world, spawnLocation);
-        final Location netherSpawn = parseLocation(worldNether, netherSpawnLocation);
+//        final Location spawn = parseLocation(world, spawnLocation);
+//        final Location netherSpawn = parseLocation(worldNether, netherSpawnLocation);
 
-        flags.forEach((f, s) -> region.getFlags().put(f, s));
+        flags.forEach((f, s) -> region.getRegion().getFlags().put(f, s));
 
         Set<TeamMember> members;
 
@@ -196,7 +201,7 @@ public class Config {
         else
             members = parseMembersTeam(membersSection);
 
-        return new Team(id, guiElement, region, netherRegion, spawn, netherSpawn, members, prefix);
+        return new Team(id, guiElement, region, netherRegion, members, prefix);
     }
 
     public static Set<TeamMember> parseMembersTeam(ConfigurationSection section) {
@@ -207,8 +212,10 @@ public class Config {
                 continue;
             final double balance = memberSection.getDouble("balance", 0D);
             final boolean life = memberSection.getBoolean("life", true);
+            final int deaths = memberSection.getInt("deaths", 0);
+            final int kills = memberSection.getInt("kills", 0);
 
-            result.add(new TeamMember(username, life, balance, Bukkit.getPlayer(username)));
+            result.add(new TeamMember(username, life, balance, kills, deaths, Bukkit.getPlayer(username)));
         }
 
         return result;
@@ -219,6 +226,15 @@ public class Config {
         final double y = section.getDouble("y");
         final double z = section.getDouble("z");
         return new Location(world, x, y, z);
+    }
+
+    public static Location parseLocation(ConfigurationSection section) {
+        final double x = section.getDouble("x");
+        final double y = section.getDouble("y");
+        final double z = section.getDouble("z");
+        final String worldName = section.getString("world");
+        final World w = Bukkit.getWorld(worldName);
+        return new Location(w, x, y, z);
     }
 
     public static void saveMembers(Team team) {
@@ -232,20 +248,6 @@ public class Config {
         });
         file.createSection("teams."+team.getId()+".members", membersMap);
         TeamWars.getInstance().saveConfig();
-    }
-
-    public static ProtectedCuboidRegion parseTeamRegion(String teamId, ConfigurationSection section) {
-        final double minX = section.getDouble("min.x");
-        final double minY = section.getDouble("min.y");
-        final double minZ = section.getDouble("min.z");
-        final BlockVector3 min = BlockVector3.at(minX, minY, minZ);
-
-        final double maxX = section.getDouble("max.x");
-        final double maxY = section.getDouble("max.y");
-        final double maxZ = section.getDouble("max.z");
-        final BlockVector3 max = BlockVector3.at(maxX, maxY, maxZ);
-
-        return new ProtectedCuboidRegion("TW-team-"+teamId, min, max);
     }
 
     public static TeamGuiElement parseGuiElement(ConfigurationSection section) {

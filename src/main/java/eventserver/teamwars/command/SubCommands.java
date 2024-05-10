@@ -15,6 +15,7 @@ public enum SubCommands {
     PAY(new PayCommand(), new String[] {"pay"}, null),
     ADDITIONAL(new AdditionalCommand(), new String[] {"additional"}, new Permission("teamwars.admin")),
     RETURN_INVENTORY(new ReturnInventoryCommand(), new String[] {"returnInv"}, null),
+    SET_CENTER_GAME(new SetCenterGameCommand(), new String[] {"setcentergame"}, new Permission("teamwars.admin")),
     SET_BALANCE(new SetBalanceCommand(), new String[] {"setbalance"}, new Permission("teamwars.admin")),
     GET_BALANCE(new GetBalanceCommand(), new String[] {"getbalance"}, new Permission("teamwars.moder")),
     TP_HERE(new TphereCommand(), new String[] {"tphere"}, new Permission("teamwars.admin"));

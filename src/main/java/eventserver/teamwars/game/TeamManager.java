@@ -59,9 +59,7 @@ public class TeamManager {
     }
 
     public void reset() {
-        this.teams.forEach(team -> {
-            team.getMembers().clear();
-        });
+        this.teams.forEach(Team::clearMembers);
     }
 
     public void updateRegions() {
@@ -73,11 +71,11 @@ public class TeamManager {
             return;
 
         for (final Team team: teams) {
-            regionManager.removeRegion(team.getRegion().getId());
-            regionManager.addRegion(team.getRegion());
+            regionManager.removeRegion(team.getRegion().getRegion().getId());
+            regionManager.addRegion(team.getRegion().getRegion());
 
-            netherRegionManager.removeRegion(team.getNetherRegion().getId());
-            netherRegionManager.addRegion(team.getNetherRegion());
+            netherRegionManager.removeRegion(team.getNetherRegion().getRegion().getId());
+            netherRegionManager.addRegion(team.getNetherRegion().getRegion());
         }
     }
 
@@ -91,21 +89,58 @@ public class TeamManager {
 
     public void runPositionControlScheduler() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (game.getState() != Game.State.ACTIVE) return;
-            for (Team team: teams) {
-                for (TeamMember member: team.getMembers()) {
-                    if (member.getBukkitInstance() == null
-                            || isPlayerInsideRegion(Config.world, team.getRegion(), member.getBukkitInstance().getLocation())
-                            || isPlayerInsideRegion(Config.worldNether, team.getNetherRegion(), member.getBukkitInstance().getLocation()))
-                        continue;
-
-                    member.getBukkitInstance().teleport(team.getSpawn());
-                    member.getBukkitInstance()
-                            .playSound(member.getBukkitInstance().getLocation(),
-                                    Sound.ENTITY_SHULKER_TELEPORT, 1.5F, 1.5F);
-                }
+            switch (game.getState()) {
+                case BATTLE -> protectPositionBattleState();
+                case ACTIVE -> protectPositionsActiveState();
             }
         }, 40, 40);
+    }
+
+    private void protectPositionsActiveState() {
+        for (Team team : teams) {
+            for (TeamMember member : team.getMembers()) {
+                if (member.getBukkitInstance() == null ||
+                        isPlayerInsideRegion(Config.world, team.getRegion().getRegion(), member.getBukkitInstance().getLocation()) ||
+                        isPlayerInsideRegion(Config.worldNether, team.getNetherRegion().getRegion(), member.getBukkitInstance().getLocation())) {
+                    continue;
+                }
+
+                Location spawnLocation = team.getRegion().getSpawn();
+                Player player = member.getBukkitInstance();
+
+                if (spawnLocation != null && player != null) {
+                    team.teleportMember(player, spawnLocation);
+                    player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_TELEPORT, 1.5F, 1.5F);
+                }
+            }
+        }
+    }
+
+    private void protectPositionBattleState() {
+        for (Team team : teams) {
+            for (TeamMember member : team.getMembers()) {
+                final Player player = member.getBukkitInstance();
+                if (player == null) continue;
+                final Location location = player.getLocation();
+                if (!isInsideAnyTeamRegion(location)) {
+                    Team t = getPlayerTeam(player);
+                    if (t != null) {
+                        t.teleport(t.getRegion().getSpawn());
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isInsideAnyTeamRegion(Location location) {
+        for (Team team: teams) {
+            if (switch (location.getWorld().getEnvironment()) {
+                case NETHER -> isPlayerInsideRegion(location.getWorld(), team.getNetherRegion().getRegion(), location);
+                case NORMAL -> isPlayerInsideRegion(location.getWorld(), team.getRegion().getRegion(), location);
+                default -> false;
+            }) return true;
+        }
+        return false;
     }
 
     private boolean isPlayerInsideRegion(World world, ProtectedCuboidRegion region, Location playerLocation) {
@@ -149,12 +184,17 @@ public class TeamManager {
             final Player player = event.getPlayer();
             final Team team = getPlayerTeam(player);
             if (team == null) return;
+            if (game.getState() == Game.State.BATTLE) {
+                event.setCancelled(true);
+                player.sendMessage(Config.MESSAGES.PORTAL_BATTLE_DENY);
+                return;
+            }
             if (event.getTo().getWorld().getName().equalsIgnoreCase(Config.worldNether.getName())) {
                 event.setCancelled(true);
-                player.teleport(team.getNetherSpawn());
+                team.teleportMember(player, team.getNetherRegion().getSpawn());
             } else if (event.getTo().getWorld().getName().equalsIgnoreCase(Config.world.getName())) {
                 event.setCancelled(true);
-                player.teleport(team.getSpawn());
+                team.teleportMember(player, team.getRegion().getSpawn());
             }
         }
 
@@ -164,18 +204,24 @@ public class TeamManager {
 
             if (player.hasPlayedBefore()) {
                 player.teleport(Config.SPAWN);
+                return;
             }
 
-            for (Team team: teams) {
+            final Team team = getPlayerTeam(player);
+            if (team == null) {
+                if (!player.hasPermission("teamwars.admin"))
+                    player.teleport(Config.SPAWN);
+            } else {
                 final TeamMember member = team.getMember(player.getName());
-                if (member == null) continue;
+                assert member != null;
                 member.setBukkitInstance(player);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> team.syncWorldBorder(player), 40);
             }
         }
 
         @EventHandler
         private void onPlayerDeath(PlayerDeathEvent event) {
-            final Player player = event.getPlayer();
+            final Player player = event.getEntity();
             final Team team = getPlayerTeam(player);
             if (team == null) return;
             final TeamMember member = team.getMember(player.getName());
@@ -188,8 +234,10 @@ public class TeamManager {
                 notify = true;
             }
 
+            member.setDeaths(member.getDeaths() + 1);
+
             if (member.isLife()) {
-                player.setBedSpawnLocation(team.getSpawn());
+                player.setBedSpawnLocation(team.getRegion().getSpawn());
                 broadcast(Config.MESSAGES.DEATH_ACTIVE
                         .replace("%balance%", String.format("%.2f", member.getBalance()))
                         .replace("%player%", player.getName())
@@ -202,6 +250,16 @@ public class TeamManager {
                         .replace("%team-prefix%", team.getPrefix()));
                 player.setBedSpawnLocation(Config.SPAWN);
                 member.setLife(false);
+            }
+
+            final Player killer = event.getEntity().getKiller();
+            if (killer != null) {
+                Team killerTeam = getPlayerTeam(killer);
+                if (killerTeam != null) {
+                    final TeamMember killerMember = killerTeam.getMember(player.getName());
+                    assert killerMember != null;
+                    killerMember.setKills(killerMember.getKills()+1);
+                }
             }
 
             new MemberDeathEvent(team, member, !member.isLife()).callEvent();

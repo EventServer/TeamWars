@@ -8,14 +8,15 @@ import lombok.Setter;
 import lombok.ToString;
 import org.bukkit.entity.Player;
 
+@Setter
 @AllArgsConstructor @Getter @ToString
 public class TeamMember {
     private final String playerName;
-    @Setter
     private boolean life;
 
-    @Setter
     private double balance;
+    private int kills;
+    private int deaths;
 
     @Getter @Setter
     private Player bukkitInstance = null;
@@ -29,6 +30,8 @@ public class TeamMember {
         jo.add("username", new JsonPrimitive(playerName));
         jo.add("balance", new JsonPrimitive(balance));
         jo.add("life", new JsonPrimitive(life));
+        jo.add("kills", new JsonPrimitive(kills));
+        jo.add("deaths", new JsonPrimitive(deaths));
         return jo;
     }
 }

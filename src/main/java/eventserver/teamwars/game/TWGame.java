@@ -6,12 +6,15 @@ import com.google.gson.JsonPrimitive;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import eventserver.teamwars.Config;
+import eventserver.teamwars.TeamWars;
 import eventserver.teamwars.event.SetGameStateEvent;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -55,16 +58,21 @@ public class TWGame implements Game {
     @Override
     public void setState(State state) {
         cancelBattleTask();
-        new SetGameStateEvent(this, state).callEvent();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            new SetGameStateEvent(this, state).callEvent();
+        });
         switch (state) {
             case ACTIVE -> {
                 startBattleDate = System.currentTimeMillis() + Config.ACTIVE_TIME * 1000L;
                 planeStartBattle();
                 teamManager.getTeams().forEach(team -> {
-                    team.teleport(team.getSpawn());
+                    team.teleport(team.getRegion().getSpawn());
                     team.clearInventories();
                 });
                 inventoryReturnManager.clear();
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    teamManager.getTeams().forEach(Team::syncMembersBorder);
+                }, 100L);
             } case INACTIVE -> {
                 teamManager.getTeams().forEach(team -> {
                     team.teleport(Config.SPAWN);
@@ -86,14 +94,23 @@ public class TWGame implements Game {
                     team.sendTitle(title);
                 }
                 for (Team team: teamManager.getTeams()) {
-                    team.getRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
-                    team.getRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
-                    team.getRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
-                    team.getRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
-                    team.getNetherRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
-                    team.getNetherRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
-                    team.getNetherRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
-                    team.getNetherRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
+                    team.getRegion().getRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
+                    team.getRegion().getRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
+                    team.getRegion().getRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
+                    team.getRegion().getRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getRegion().getFlags().put(Flags.ENTRY, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getRegion().getFlags().put(Flags.BUILD, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getRegion().getFlags().put(Flags.USE, StateFlag.State.ALLOW);
+                    team.getNetherRegion().getRegion().getFlags().put(Flags.PVP, StateFlag.State.ALLOW);
+
+                    for (TeamMember member: team.getMembers()) {
+                        final Player player = member.getBukkitInstance();
+                        if (player == null) continue;
+                        TeamWars.getInstance().getBorderManager().resetBorder(player);
+                        if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
+                            player.teleport(team.getRegion().getSpawn());
+                        }
+                    }
                 }
             }
         }

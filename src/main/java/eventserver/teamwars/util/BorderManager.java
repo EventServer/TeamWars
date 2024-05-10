@@ -27,11 +27,11 @@ public class BorderManager implements Listener {
     }
 
     public BorderState getState(Player player) {
-        if (cache.containsKey(player))
-            return cache.get(player);
+        if (cache.containsKey(player)) {
+                return cache.get(player);
 
-        final World world = player.getWorld();
-        final WorldBorder border = world.getWorldBorder();
+        }
+        final WorldBorder border = player.getWorld().getWorldBorder();
         return new BorderState(border.getCenter(), border.getSize());
     }
 
@@ -55,6 +55,7 @@ public class BorderManager implements Listener {
         final World world = player.getWorld();
         final WorldBorder border = world.getWorldBorder();
         setBorder(player, border.getCenter(), border.getSize());
+        cache.remove(player);
     }
 
     public record BorderState(Location center, double size) {

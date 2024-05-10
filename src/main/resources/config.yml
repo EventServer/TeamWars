@@ -4,6 +4,7 @@ nether-world: world_nether
 teams-max-slots: 50
 
 spawn-location:
+  world: spawn_world
   x: 0
   y: 100
   z: 0
@@ -14,6 +15,7 @@ time-format: "%h%ч. %m%м. %s%с."
 chat-global-format: "§x§f§b§e§6§2§4ɢ §7| %team%§f %player%§7: %text%"
 inventory-return-price: 350
 messages:
+  portal-battle-deny: "Использовать портал во время финальной битвы запрещено."
   teleport-ok: "Телепортирую..."
   no-permission: "§cНедостаточно прав"
   no-team: "Команда не найдена"

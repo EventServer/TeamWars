@@ -51,6 +51,9 @@ public class JoinCommand implements SubCommand {
             team.setAdditionalMembers(team.getAdditionalMembers()-1);
 
         team.addMember(player);
+        if (game.getState() == Game.State.ACTIVE) {
+            team.syncWorldBorder(player);
+        }
         team.sendMessage(Config.MESSAGES.PLAYER_TEAM_JOIN.replace("%player%", player.getName()));
     }
 
